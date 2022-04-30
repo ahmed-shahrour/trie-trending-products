@@ -7,6 +7,7 @@ import {
   Card,
   Loading,
   Divider,
+  Input,
 } from '@nextui-org/react';
 import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -19,36 +20,44 @@ function App() {
   const [limit, setLimit] = useState(10);
   const [hasMore, setHasMore] = useState(true);
   const [refresh, setRefresh] = useState(true);
+  const [search, setSearch] = useState('');
 
   // function to handle the inifinite scoll data fetching.
   async function fetchData() {
-    const { data } = await productsService.getTrendingProducts(
-      page,
-      limit,
-      refresh
-    );
-
-    setProducts([...products].concat(data.trendingProducts));
-    setHasMore(data.totalPages > page);
-    setPage(page + 1);
-    setRefresh(false);
+    try {
+       const { data } = await productsService.getTrendingProducts(
+         page,
+         limit,
+         refresh
+       );
+       setProducts([...products].concat(data.trendingProducts));
+       setHasMore(data.totalPages > page);
+       setPage(page + 1);
+       setRefresh(false);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   // function to handle refresh condition
   async function fetchRefreshData() {
-    setProducts([]);
-    setHasMore(true);
-    setRefresh(true);
-    const { data } = await productsService.getTrendingProducts(
-      1,
-      limit,
-      refresh
-    );
-    setProducts(data.trendingProducts);
-    setHasMore(data.totalPages > page);
-    setPage(2);
-    setRefresh(false);
-    return data.trendingProducts;
+    try {
+      setProducts([]);
+      setHasMore(true);
+      setRefresh(true);
+      const { data } = await productsService.getTrendingProducts(
+        1,
+        limit,
+        refresh
+      );
+      setProducts(data.trendingProducts);
+      setHasMore(data.totalPages > page);
+      setPage(2);
+      setRefresh(false);
+      return data.trendingProducts;
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   useEffect(() => fetchData(), []);
@@ -61,7 +70,14 @@ function App() {
           <hr />
         </Container>
       </header>
-
+      <Container css={{ py: '$10' }} xs={3}>
+        <Input
+          label="Search"
+          size="xl"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </Container>
       <InfiniteScroll
         dataLength={products.length}
         next={fetchData}
