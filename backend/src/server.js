@@ -5,6 +5,10 @@ const logger = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
+const mongoose = require('mongoose');
+
+const Trie = require('./util/prefixTrie');
+const cache = require('./util/cache');
 
 // Require database configuration
 const db = require('./config/db');
@@ -49,6 +53,14 @@ app.use((error, req, res, next) =>
 const run = async () => {
   // Connect to Mongoose database. Connection code in config/db.js
   await db();
+
+  // Create the trie (NOTE THIS MUST DONE ONLY ONCE ON INIT SERVER)
+  const trendingProducts = await mongoose.connection.collection('trending_products').find({}).toArray()
+  const trendingProductsNames = trendingProducts.map(product => product._id.product_name)
+  const trie = new Trie(trendingProductsNames);
+  cache.set('trie', trie);
+
+  // Start the server
   await app.listen(process.env.PORT);
   console.log(`App listening on port ${process.env.PORT}!`);
 };
