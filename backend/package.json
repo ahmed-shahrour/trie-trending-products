@@ -8,6 +8,7 @@
     "build": "npm run clean && babel ./src --out-dir dist",
     "import": "node ./src/util/seedData.js --import",
     "remove": "node ./src/util/seedData.js --delete",
+    "dev": "npm run build && nodemon --exec babel-node ./dist/server.js",
     "start": "npm run remove && npm run import && npm run build && nodemon --exec babel-node ./dist/server.js"
   },
   "author": "",
@@ -20,7 +21,8 @@
     "helmet": "^5.0.2",
     "moment": "^2.29.1",
     "mongoose": "^6.2.3",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "node-cache": "^5.1.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.17.6",
