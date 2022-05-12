@@ -21,6 +21,7 @@ function App() {
   const [hasMore, setHasMore] = useState(true);
   const [refresh, setRefresh] = useState(true);
   const [search, setSearch] = useState('');
+  const [autoSuggestions, setAutoSuggestions] = useState([]);
 
   // function to handle the inifinite scoll data fetching.
   async function fetchData() {
@@ -28,7 +29,8 @@ function App() {
        const { data } = await productsService.getTrendingProducts(
          page,
          limit,
-         refresh
+         refresh,
+         search
        );
        setProducts([...products].concat(data.trendingProducts));
        setHasMore(data.totalPages > page);
@@ -48,7 +50,8 @@ function App() {
       const { data } = await productsService.getTrendingProducts(
         1,
         limit,
-        refresh
+        refresh,
+        search
       );
       setProducts(data.trendingProducts);
       setHasMore(data.totalPages > page);
@@ -58,6 +61,16 @@ function App() {
     } catch (err) {
       console.log(err);
     }
+  }
+
+  async function handleKeyStroke(e) {
+    if (e.key === 'Enter') {
+      await fetchRefreshData();
+      return;
+    }
+    setSearch(e.target.value);
+    const { data } = await productsService.getSuggestions(e.target.value);
+    setAutoSuggestions(data.autoSuggestions);
   }
 
   useEffect(() => fetchData(), []);
@@ -76,7 +89,21 @@ function App() {
           size="xl"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={handleKeyStroke}
         />
+        <>
+        {
+          autoSuggestions.length > 0 && (
+            <Row>
+              {autoSuggestions.map((suggestion) => (
+                <Col key={suggestion}>
+                  <Text>{suggestion}</Text>
+                </Col>
+              ))}
+            </Row>
+          )
+        }
+        </>
       </Container>
       <InfiniteScroll
         dataLength={products.length}
@@ -85,7 +112,7 @@ function App() {
         loader={<Loading />}
         refreshFunction={fetchRefreshData}
         pullDownToRefresh
-        pullDownToRefreshThreshold={50}
+        pullDownToRefreshThreshold={10}
         pullDownToRefreshContent={<Text h3>&#8595; Pull down to refresh</Text>}
         releaseToRefreshContent={<Text h3>&#8593; Release to refresh</Text>}
       >

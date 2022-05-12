@@ -1,8 +1,8 @@
 import api from '../util/api'
 
 class ProductService {
-  getTrendingProducts(page, limit, refresh) {
-    return api.get('/products/trending', { params: { page, limit, refresh } });
+  getTrendingProducts(page, limit, refresh, search = null) {
+    return api.get('/products/trending', { params: { page, limit, refresh, search } });
   }
   getSuggestions(prefix) {
     return api.get('/products/suggestions', { params: { prefix } });

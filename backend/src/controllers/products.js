@@ -15,7 +15,7 @@ async function getTrendingProducts(req, res, next) {
     if (refresh) await createTrendingProductsMaterialView();
 
     let query = {}
-    if (search) query.$text = { $search: search };
+    if (search && search.length) query.$text = { $search: search };
 
     // Pagination logic
     let trendingProducts = await TrendingProduct

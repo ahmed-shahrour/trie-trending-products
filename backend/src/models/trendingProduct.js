@@ -7,6 +7,9 @@ const TrendingProductSchema = new Schema({
   most_recent_time: { type: Date, required: true },
 });
 
+TrendingProductSchema.index({ "_id.product_name": 'text' });
+
+
 module.exports = mongoose.model(
   'TrendingProduct',
   TrendingProductSchema,
